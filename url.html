@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>URL Shortener</title>
+    <script>
+      // Utility function to generate a random string of specified length
+      function generateRandomString(length) {
+        let result = '';
+        const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+        const charactersLength = characters.length;
+        for (let i = 0; i < length; i++) {
+          result += characters.charAt(Math.floor(Math.random() * charactersLength));
+        }
+        return result;
+      }
+
+      // Class representing the URL shortener service
+      class URLShortener {
+        constructor() {
+          this.urls = new Map(); // map to store the long URLs and their corresponding shortened URLs
+          this.host = 'https://yourdomain.com'; // Set your desired domain for the shortened URLs here
+          this.codeLength = 7; // length of the shortened URL's code
+        }
+
+        encodeURL(longURL) {
+          let code = '';
+          do {
+            code = generateRandomString(this.codeLength);
+          } while (this.urls.has(code));
+
+          const shortURL = `${this.host}/${code}`;
+          this.urls.set(code, longURL);
+
+          return shortURL;
+        }
+
+        decodeURL(shortURL) {
+          const code = shortURL.split('/')[3];
+          if (this.urls.has(code)) {
+            const longURL = this.urls.get(code);
+            window.location.href = longURL;
+          } else {
+            console.error('Invalid or expired URL');
+          }
+        }
+      }
+
+      const shortener = new URLShortener();
+
+      function shortenURL() {
+        const longURL = document.getElementById('longURL').value;
+        const shortURL = shortener.encodeURL(longURL);
+        document.getElementById('shortURL').innerHTML = shortURL;
+      }
+
+      function decodeURL() {
+        const shortURL = document.getElementById('shortURL').innerHTML;
+        shortener.decodeURL(shortURL);
+      }
+    </script>
+  </head>
+  <body>
+    <h1>URL Shortener</h1>
+    <label for="longURL">Enter a long URL:</label><br>
+    <input type="text" id="longURL"><br>
+
+    <button onclick="shortenURL()">Shorten</button><br>
+
+    <p>Shortened URL:</p>
+    <p id="shortURL"></p>
+
+    <button onclick="decodeURL()">Decode</button>
+  </body>
+</html>
