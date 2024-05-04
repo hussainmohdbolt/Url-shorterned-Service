@@ -18,7 +18,6 @@
       class URLShortener {
         constructor() {
           this.urls = new Map(); // map to store the long URLs and their corresponding shortened URLs
-          this.host = 'https://yourdomain.com'; // Set your desired domain for the shortened URLs here
           this.codeLength = 7; // length of the shortened URL's code
         }
 
@@ -28,14 +27,24 @@
             code = generateRandomString(this.codeLength);
           } while (this.urls.has(code));
 
-          const shortURL = `${this.host}/${code}`;
+          const shortURL = `${this.extractDomain(longURL)}/${code}`;
           this.urls.set(code, longURL);
 
           return shortURL;
         }
 
+        extractDomain(url) {
+          // Extract domain from the input URL
+          const matches = url.match(/^https?:\/\/(?:www\.)?([^\/]+)/i);
+          if (matches && matches.length > 1) {
+            return matches[1];
+          }
+          return 'https://yourdomain.com'; // Default domain if unable to extract
+        }
+
         decodeURL(shortURL) {
-          const code = shortURL.split('/')[3];
+          const parts = shortURL.split('/');
+          const code = parts[parts.length - 1];
           if (this.urls.has(code)) {
             const longURL = this.urls.get(code);
             window.location.href = longURL;
